@@ -43,6 +43,7 @@
 	<script src="./js/GPUParticleSystem.js"></script>
 
 	<script>
+		"use strict"
 		var camera, tick = 0,
 			scene, renderer, clock = new THREE.Clock(),
 			controls, container, gui = new dat.GUI( { width: 350 } ),
@@ -50,11 +51,10 @@
 
 		var stats;
 		var particleSystems = []
+		var rocks = [];
 		var firelight;
 		var nSystems = 30;
-		var offset = 20;
-
-
+		var offset = 10;
 
 		init();
 		animate();
@@ -65,10 +65,10 @@
 
 			container = document.getElementById( 'container' );
 
-			camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000 );
+			camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 0.1, 10000 );
 			camera.position.z = 50;
 			camera.position.x = 0;
-			camera.position.y = 40;
+			camera.position.y = 20;
 
 			scene = new THREE.Scene();
 
@@ -107,7 +107,7 @@
 				floorMat.roughnessMap = map;
 				floorMat.needsUpdate = true;
 			});
-			moonMat = new THREE.MeshPhongMaterial({
+			var moonMat = new THREE.MeshPhongMaterial({
 				color: 0xffffff,
 			});
 			textureLoader.load("textures/moon.jpg", function(map) {
@@ -115,25 +115,41 @@
 				moonMat.needsUpdate = true;
 			});
 
+			var rockMat = new THREE.MeshPhongMaterial({
+				color: 0xffffff
+			});
+			textureLoader.load("textures/rock.jpg", function(map) {
+				rockMat.map = map;
+				rockMat.needsUpdate = true;
+			});
+
+			for (var i = 0; i < 20; i++) {
+				rocks[i] = new THREE.Mesh(MoonGeo, rockMat);
+				rocks[i].scale.set(0.3,0.3,0.3);
+				rocks[i].position.set(Math.cos(i*Math.PI/5)*10, 0.5, Math.sin(i*Math.PI/5)*10);
+				scene.add(rocks[i]);
+			}
+
 			var plane = new THREE.Mesh( geometry, floorMat );
 			plane.rotation.x -= Math.PI/2.0;
-			plane.position.set(0,10,0)
 			scene.add( plane );
 
 			var sphere = new THREE.Mesh(MoonGeo, moonMat);
 			sphere.scale.set(30,30,30);
-			sphere.position.set(140, 110, -1000)
+			sphere.position.set(300, 110, -1000)
 			scene.add(sphere);
 
 			firelight = new THREE.PointLight(0xff2900, 1, 100, 1);
 			firelight.position.set(0,offset,0);
 			scene.add(firelight);
 
-			var moonlight = new THREE.PointLight(0xffffff, 1, 500, 1);
-			moonlight.position.set(140, 110, -500);
+			var moonlight = new THREE.DirectionalLight(0xffffff, 1, 500, 1);
+			moonlight.position.set(300, 110, -500);
+			moonlight.target = sphere;
 			scene.add(moonlight);
-
-
+			var moonlight2 = new THREE.PointLight(0xffffff, 0.5, 2000, 1);
+			moonlight2.position.set(300, 110, -1000+(5*5));
+			scene.add(moonlight2);
 
 			var loggeometry = new THREE.CylinderGeometry( 3, 3, 15, 32 );
 			var logmaterial = new THREE.MeshBasicMaterial( {color: 0xffff00} );
@@ -147,10 +163,10 @@
 			var log1 = new THREE.Mesh( loggeometry, logmaterial );
 			var log2 = new THREE.Mesh( loggeometry, logmaterial );
 			log1.rotation.x -= Math.PI/2.0;
-			log1.position.set(0,15,0);
+			log1.position.set(0,3,0);
 			log2.rotation.z -= Math.PI/2.0;
-			log2.position.set(0,15,0);
-			scene.add( log1 );
+			log2.position.set(0,3,0);
+			scene.add(log1);
 			scene.add(log2);
 
 			for(var i = 0; i < nSystems; i++)
@@ -219,6 +235,8 @@
 			//controls.panSpeed = 1;
 			//controls.dynamicDampingFactor = 0.3;
 			controls = new THREE.OrbitControls(camera, renderer.domElement);
+			controls.zoomSpeed = 0.5;
+			controls.maxPolarAngle = Math.PI/2 - 0.1;
 
 			window.addEventListener( 'resize', onWindowResize, false );
 
@@ -249,6 +267,7 @@
 
 				//options.position.x = Math.sin( tick * spawnerOptions.horizontalSpeed ) * 20;
 				var angle = Math.atan2(camera.position.z , camera.position.x)
+				//options.velocity.set(10, 2, 10);
 				firelight.intensity += 0.5;
 				if (firelight.intensity > Math.random() * 10) {
 					firelight.intensity = 3;
