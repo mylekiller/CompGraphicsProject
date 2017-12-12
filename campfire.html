@@ -50,7 +50,9 @@
 
 		var stats;
 		var particleSystems = []
+		var firelight;
 		var nSystems = 100;
+		var offset = 20;
 
 		init();
 		animate();
@@ -61,11 +63,10 @@
 
 			container = document.getElementById( 'container' );
 
-			camera = new THREE.PerspectiveCamera( 28, window.innerWidth / window.innerHeight, 0.1, 10000 );
-			camera.position.z = 100;
+			camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000 );
+			camera.position.z = 50;
 			camera.position.x = 0;
-			camera.position.y = 10;
-
+			camera.position.y = 20;
 
 			scene = new THREE.Scene();
 
@@ -117,15 +118,21 @@
 
 			var plane = new THREE.Mesh( geometry, floorMat );
 			plane.rotation.x -= Math.PI/2.0;
+			plane.position.set(0,10,0)
 			scene.add( plane );
 
 			var sphere = new THREE.Mesh(MoonGeo, moonMat);
-			sphere.scale.set(1,1,1);
-			sphere.position.set(10, 100, -1000)
+			sphere.scale.set(30,30,30);
+			sphere.position.set(140, 110, -1000)
 			scene.add(sphere);
 
-			var light = new THREE.AmbientLight( 0xffffff ); // soft white light
-			scene.add( light );
+			firelight = new THREE.PointLight(0xff2900, 1, 1000, 1);
+			firelight.position.set(0,offset,0);
+			scene.add(firelight);
+
+			var moonlight = new THREE.PointLight(0xffffff, 1, 100, 1);
+			moonlight.position.set(140, 110, -1000);
+			scene.add(moonlight);
 
 			for(var i = 0; i < nSystems; i++)
 			{
@@ -221,14 +228,17 @@
 			if ( delta > 0 ) {
 
 				//options.position.x = Math.sin( tick * spawnerOptions.horizontalSpeed ) * 20;
-				for(var i = 0; i < nSystems; i++) {
-					var angle = Math.atan(camera.position.z / camera.position.x)
-					options.position.x = (3 * Math.sin(i) * Math.pow(Math.sin(i/2) , 1)) * Math.sin(angle)
-					options.position.y = (4 * Math.cos(i)) -20
-					options.position.z = (Math.cos(angle))
+				var angle = Math.atan2(camera.position.z , camera.position.x)
+				for(var i = 0; i < nSystems; i++)
+				{
+				
+					//(3 * Math.sin(i) * Math.pow(Math.sin(i/2) , 1)) 
+					options.position.x =  (4 * Math.sin(i) * Math.pow(Math.sin(i/2) , 1)) * -Math.sin(angle);
+					options.position.y =    4 * Math.cos(i) + offset ;
+					options.position.z = (4 * Math.sin(i) * Math.pow(Math.sin(i/2) , 1))  *  Math.cos(angle );
 
-					spawnerOptions.spawnRate =  0.0006  * Math.pow(options.position.y , 4);
-					options.velocityRandomness = 300000.0 / Math.pow(options.position.y , 5);
+					spawnerOptions.spawnRate =    200;
+					options.velocityRandomness = 0.5;
 					//options.position.z = Math.sin( tick * spawnerOptions.horizontalSpeed + spawnerOptions.verticalSpeed ) * 5;
 
 					for ( var x = 0; x < spawnerOptions.spawnRate * delta; x++ ) {
