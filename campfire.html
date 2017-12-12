@@ -37,7 +37,7 @@
 	</div>
 
 	<script src="./js/three.js"></script>
-	<script src="./js/controls/TrackballControls.js"></script>
+	<script src="./js/controls/OrbitControls.js"></script>
 	<script src="./js/libs/dat.gui.min.js"></script>
 	<script src="./js/libs/stats.min.js"></script>
 	<script src="./js/GPUParticleSystem.js"></script>
@@ -51,7 +51,7 @@
 		var stats;
 		var particleSystems = []
 		var firelight;
-		var nSystems = 100;
+		var nSystems = 30;
 		var offset = 20;
 
 		init();
@@ -105,7 +105,7 @@
 				floorMat.roughnessMap = map;
 				floorMat.needsUpdate = true;
 			});
-			moonMat = new THREE.MeshBasicMaterial({
+			moonMat = new THREE.MeshPhongMaterial({
 				color: 0xffffff,
 			});
 			textureLoader.load("textures/moon.jpg", function(map) {
@@ -127,8 +127,8 @@
 			firelight.position.set(0,offset,0);
 			scene.add(firelight);
 
-			var moonlight = new THREE.PointLight(0xffffff, 1, 100, 1);
-			moonlight.position.set(140, 110, -1000);
+			var moonlight = new THREE.PointLight(0xffffff, 1, 500, 1);
+			moonlight.position.set(140, 110, -500);
 			scene.add(moonlight);
 
 			for(var i = 0; i < nSystems; i++)
@@ -191,11 +191,12 @@
 
 			//
 
-			controls = new THREE.TrackballControls( camera, renderer.domElement );
-			controls.rotateSpeed = 5.0;
-			controls.zoomSpeed = 2.2;
-			controls.panSpeed = 1;
-			controls.dynamicDampingFactor = 0.3;
+			//controls = new THREE.TrackballControls( camera, renderer.domElement );
+			//controls.rotateSpeed = 5.0;
+			//controls.zoomSpeed = 2.2;
+			//controls.panSpeed = 1;
+			//controls.dynamicDampingFactor = 0.3;
+			controls = new THREE.OrbitControls(camera, renderer.domElement);
 
 			window.addEventListener( 'resize', onWindowResize, false );
 
