@@ -54,6 +54,8 @@
 		var nSystems = 30;
 		var offset = 20;
 
+
+
 		init();
 		animate();
 
@@ -130,6 +132,26 @@
 			var moonlight = new THREE.PointLight(0xffffff, 1, 500, 1);
 			moonlight.position.set(140, 110, -500);
 			scene.add(moonlight);
+
+
+
+			var loggeometry = new THREE.CylinderGeometry( 3, 3, 15, 32 );
+			var logmaterial = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+
+			textureLoader.load("textures/tree.jpg", function(map) {
+			logmaterial.map = map;
+			logmaterial.needsUpdate = true;
+			});
+		
+
+			var log1 = new THREE.Mesh( loggeometry, logmaterial );
+			var log2 = new THREE.Mesh( loggeometry, logmaterial );
+			log1.rotation.x -= Math.PI/2.0;
+			log1.position.set(0,15,0);
+			log2.rotation.z -= Math.PI/2.0;
+			log2.position.set(0,15,0);
+			scene.add( log1 );
+			scene.add(log2);
 
 			for(var i = 0; i < nSystems; i++)
 			{
