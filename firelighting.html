@@ -36,22 +36,25 @@
 		<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - GPU particle system plugin by <a href="http://charliehoey.com">Charlie Hoey</a>.
 	</div>
 
-	<script src="./js/three.js"></script>
-	<script src="./js/controls/TrackballControls.js"></script>
-	<script src="./js/libs/dat.gui.min.js"></script>
-	<script src="./js/libs/stats.min.js"></script>
-	<script src="./js/GPUParticleSystem.js"></script>
+	<script src="three.js-master/build/three.js"></script>
+	<script src="three.js-master/examples/js/controls/TrackballControls.js"></script>
+	<script src="three.js-master/examples/js/libs/dat.gui.min.js"></script>
+	<script src="three.js-master/examples/js/libs/stats.min.js"></script>
+	<script src="three.js-master/examples/js/GPUParticleSystem.js"></script>
 
 	<script>
+		var nSystems = 50;
 		var camera, tick = 0,
 			scene, renderer, clock = new THREE.Clock(),
 			controls, container, gui = new dat.GUI( { width: 350 } ),
-			options, spawnerOptions, floorMat, moomMat;
+			options, spawnerOptions, particleSystem;
 
 		var stats;
-		var particleSystems = []
-		var nSystems = 100;
+		var light;
 
+		var particleSystems = []
+		var lights = []
+		
 		init();
 		animate();
 
@@ -61,11 +64,8 @@
 
 			container = document.getElementById( 'container' );
 
-			camera = new THREE.PerspectiveCamera( 28, window.innerWidth / window.innerHeight, 0.1, 10000 );
+			camera = new THREE.PerspectiveCamera( 28, window.innerWidth / window.innerHeight, 1, 10000 );
 			camera.position.z = 100;
-			camera.position.x = 0;
-			camera.position.y = 10;
-
 
 			scene = new THREE.Scene();
 
@@ -74,66 +74,22 @@
 			// relative to the position of the particle system, but you will probably only need one
 			// system for your whole scene
 
-			var MoonGeo = new THREE.SphereBufferGeometry( 5, 32, 32 );
-			var geometry = new THREE.PlaneBufferGeometry( 1000, 1000 );
-			floorMat = new THREE.MeshStandardMaterial( {
-					roughness: 0.8,
-					color: 0xffffff,
-					metalness: 0.2,
-					bumpScale: 0.1
-			});
-			var textureLoader = new THREE.TextureLoader();
-			textureLoader.load( "textures/forest-floor-terrain_diffuse.jpg", function( map ) {
-				map.wrapS = THREE.RepeatWrapping;
-				map.wrapT = THREE.RepeatWrapping;
-				map.anisotropy = 4;
-				map.repeat.set( 10, 20 );
-				floorMat.map = map;
-				floorMat.needsUpdate = true;
-			} );
-			textureLoader.load("textures/forest-floor-terrain_normal.jpg", function(map) {
-				map.wrapS = THREE.RepeatWrapping;
-				map.wrapT = THREE.RepeatWrapping;
-				map.anisotropy = 4;
-				map.repeat.set( 10, 20 );
-				floorMat.bumpMap = map;
-				floorMat.needsUpdate = true;
-			});
-			textureLoader.load("textures/forest-floor-terrain_roughness.jpg", function(map) {
-				map.wrapS = THREE.RepeatWrapping;
-				map.wrapT = THREE.RepeatWrapping;
-				map.anisotropy = 4;
-				map.repeat.set( 10, 20 );
-				floorMat.roughnessMap = map;
-				floorMat.needsUpdate = true;
-			});
-			moonMat = new THREE.MeshBasicMaterial({
-				color: 0xffffff,
-			});
-			textureLoader.load("textures/moon.jpg", function(map) {
-				moonMat.map = map;
-				moonMat.needsUpdate = true;
-			});
-
-			var plane = new THREE.Mesh( geometry, floorMat );
-			plane.rotation.x -= Math.PI/2.0;
-			scene.add( plane );
-
-			var sphere = new THREE.Mesh(MoonGeo, moonMat);
-			sphere.scale.set(1,1,1);
-			sphere.position.set(10, 100, -1000)
-			scene.add(sphere);
-
-			var light = new THREE.AmbientLight( 0xffffff ); // soft white light
-			scene.add( light );
+			var square = new THREE.BoxGeometry(20,20,20)
+			var material = new THREE.MeshPhongMaterial({color:0xff2900});
+			var cube = new THREE.Mesh(square,material);
 
 			for(var i = 0; i < nSystems; i++)
 			{
 				particleSystems[i] = new THREE.GPUParticleSystem( {
 				maxParticles: 255
 				} );
-				scene.add(particleSystems[i])
+				scene.add(particleSystems[i]);
+				lights.push(new THREE.PointLight(0x800080, 1, 40, 4));
+				scene.add(lights[i]);
+
 			}
+			
+			scene.add(cube);
 
 
 			// options passed during each spawned
@@ -143,7 +99,7 @@
 				positionRandomness: 5.0,
 				velocity: new THREE.Vector3(0, 2, 0),
 				velocityRandomness: 2.0,
-				color: 0xff2900,
+				color: 0x800080,
 				colorRandomness: .15,
 				turbulence: 0,
 				lifetime: 0.5,
@@ -159,8 +115,8 @@
 			};
 
 			//
-			/*
-			gui.add( options, "velocityRandomness", 0, 3 );
+
+			/*gui.add( options, "velocityRandomness", 0, 3 );
 			gui.add( options, "positionRandomness", 0, 3 );
 			gui.add( options, "size", 1, 20 );
 			gui.add( options, "sizeRandomness", 0, 25 );
@@ -169,8 +125,8 @@
 			gui.add( options, "turbulence", 0, 1 );
 
 			gui.add( spawnerOptions, "spawnRate", 10, 30000 );
-			gui.add( spawnerOptions, "timeScale", -1, 1 );
-			*/
+			gui.add( spawnerOptions, "timeScale", -1, 1 );*/
+
 			//
 
 			stats = new Stats();
@@ -179,8 +135,6 @@
 			//
 
 			renderer = new THREE.WebGLRenderer();
-			renderer.shadowMap.enabled = true;
-			renderer.toneMapping = THREE.ReinhardToneMapping;
 			renderer.setPixelRatio( window.devicePixelRatio );
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			container.appendChild( renderer.domElement );
@@ -221,11 +175,16 @@
 			if ( delta > 0 ) {
 
 				//options.position.x = Math.sin( tick * spawnerOptions.horizontalSpeed ) * 20;
-				for(var i = 0; i < nSystems; i++) {
+				for(var i = 0; i < nSystems; i++)
+				{
 					var angle = Math.atan(camera.position.z / camera.position.x)
-					options.position.x = (3 * Math.sin(i) * Math.pow(Math.sin(i/2) , 1)) * Math.sin(angle)
-					options.position.y = (4 * Math.cos(i)) -20
-					options.position.z = (Math.cos(angle))
+					options.position.x = 15*Math.cos(i);
+					options.position.y = -20;
+					options.position.z = 15*Math.sin(i);
+					lights[i].position.x = 15*Math.cos(i);
+					lights[i].position.y = -20;
+					lights[i].position.z = 15*Math.sin(i);
+					lights[i].intensity = Math.random()*5;
 
 					spawnerOptions.spawnRate =  0.0006  * Math.pow(options.position.y , 4);
 					options.velocityRandomness = 300000.0 / Math.pow(options.position.y , 5);
@@ -240,6 +199,8 @@
 
 					}
 				}
+				
+
 			}
 
 			for(var i = 0; i < nSystems; i++)
@@ -261,5 +222,3 @@
 
 	</script>
 </body>
-
-</html>
