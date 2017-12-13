@@ -316,8 +316,8 @@
 				var angle = Math.atan2(camera.position.z , camera.position.x)
 
 				firelight.intensity += 0.5;
-				if (firelight.intensity > Math.random() * 10 * (light_flicker / 500.0)) {
-					firelight.intensity = 3;
+				if (firelight.intensity > Math.random() * 30 *(size/60) * (lifetime) * (light_flicker / 500.0)) {
+					firelight.intensity = 10 * (size/60) * (lifetime) ;
 				}
 				options.velocityRandomness = vel_rand;
 				options.color = red * Math.pow(16, 4);
