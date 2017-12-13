@@ -49,7 +49,7 @@
 			controls, container, gui = new dat.GUI( { width: 350 } ),
 			options, spawnerOptions, floorMat, moomMat;
 
-		var vel_rand, turbulence, lifetime, size, light_intensity, red, green ,blue;
+		var vel_rand, turbulence, lifetime, size, light_flicker, red, green ,blue;
 
 		var stats;
 		var particleSystems = []
@@ -76,8 +76,8 @@
 			lifetime:0.5,
 			//size [0,60]
 			size:30,
-			//light_intensity [0,1000]
-			light_intensity:500,
+			//light_flicker [0,1000]
+			light_flicker:500,
 			//r [0,255]
 			red:255,
 			//g [0,255]
@@ -91,7 +91,7 @@
 			turbulence = valController.turbulence;
 			lifetime = valController.lifetime;
 			size = valController.size;
-			light_intensity = valController.light_intensity;
+			light_flicker = valController.light_flicker;
 			red = valController.red;
 			green = valController.green;
 			blue = valController.blue;
@@ -102,7 +102,7 @@
 			valController.turbulence = 0.0
 			valController.lifetime = 0.5
 			valController.size = 30.0
-			valController.light_intensity = 500
+			valController.light_flicker = 500
 			valController.red= 255;
 			valController.green = 41;
 			valController.blue = 0;
@@ -114,7 +114,7 @@
 		gui.add(valController, "turbulence", 0, 1, 0.01).onChange(valChanger);
 		gui.add(valController, "lifetime", 0, 1, 0.01).onChange(valChanger);
 		gui.add(valController, "size", 0, 60, 1).onChange(valChanger);
-		gui.add(valController, "light_intensity", 0, 1000, 10).onChange(valChanger);
+		gui.add(valController, "light_flicker", 0, 1000, 10).onChange(valChanger);
 		gui.add(valController, "red", 0, 255, 1).onChange(valChanger);
 		gui.add(valController, "green", 0, 255, 1).onChange(valChanger);
 		gui.add(valController, "blue", 0, 255, 1).onChange(valChanger);
@@ -331,7 +331,7 @@
 				var angle = Math.atan2(camera.position.z , camera.position.x)
 				//options.velocity.set(10, 2, 10);
 				firelight.intensity += 0.5;
-				if (firelight.intensity > Math.random() * 10 * (light_intensity / 500.0)) {
+				if (firelight.intensity > Math.random() * 10 * (light_flicker / 500.0)) {
 					firelight.intensity = 3;
 				}
 				options.velocityRandomness = vel_rand;
