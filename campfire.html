@@ -57,6 +57,7 @@
 		var firelight;
 		var nSystems = 30;
 		var offset = 10;
+		var crackle;
 
 		var button = {
 			Restart: function() {restartSimulation(); }
@@ -262,20 +263,19 @@
 				timeScale: 1
 			};
 
-			//
-			/*
-			gui.add( options, "velocityRandomness", 0, 3 );
-			gui.add( options, "positionRandomness", 0, 3 );
-			gui.add( options, "size", 1, 20 );
-			gui.add( options, "sizeRandomness", 0, 25 );
-			gui.add( options, "colorRandomness", 0, 1 );
-			gui.add( options, "lifetime", .1, 10 );
-			gui.add( options, "turbulence", 0, 1 );
+			var listener = new THREE.AudioListener();
+			camera.add( listener );
+			crackle = new THREE.PositionalAudio( listener );
+			var audioLoader = new THREE.AudioLoader();
+			audioLoader.load( 'audio/Crackling Fireplace Sound Effect HQ.ogg', function( buffer ) { 
+				crackle.setBuffer( buffer );
+				crackle.setLoop(true); 
+				crackle.setRefDistance( 10 ); 
+				crackle.setVolume(1);
+				crackle.play();
+			});
 
-			gui.add( spawnerOptions, "spawnRate", 10, 30000 );
-			gui.add( spawnerOptions, "timeScale", -1, 1 );
-			*/
-			//
+			log1.add(crackle);
 
 			stats = new Stats();
 			container.appendChild( stats.dom );
@@ -343,6 +343,13 @@
 				options.turbulence = turbulence;
 				options.lifetime = lifetime
 				options.size = size;
+				if (lifetime == 0 || size == 0) {
+					crackle.setVolume(0);
+					firelight.intensity = 0;
+				}
+				else if (lifetime != 0 && size != 0) {
+					crackle.setVolume(1);
+				}
 				for(var i = 0; i < nSystems; i++)
 				{
 				
